@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 15px;
+      text-align: center;
+      background: #f7f7f7;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    #qr-container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .type-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .type-buttons button {
+      font-size: 14px;
+      padding: 10px;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+      background: #eee;
+    }
+
+    .type-buttons button:hover {
+      background: #ddd;
+    }
+
+    .input-fields {
+      margin-top: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-top: 5px;
+    }
+
+    button {
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #000;
+      color: white;
+      margin-top: 10px;
+    }
+
+    #qr-code {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 20px;
+      }
+
+      .type-buttons button {
+        flex: 1 1 40%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>QR CODE GENERATOR</h1>
+
+<div id="qr-container">
+
+  <div class="type-buttons">
+    <button onclick="selectType('url')">🌐 URL</button>
+    <button onclick="selectType('phone')">📞 Phone</button>
+    <button onclick="selectType('text')">📄 Text</button>
+    <button onclick="selectType('email')">✉️ Email</button>
+    <button onclick="selectType('wifi')">📶 WiFi</button>
+    <button onclick="selectType('whatsapp')">💬 WhatsApp</button>
+  </div>
+
+  <div class="input-fields">
+
+    <div id="url-fields">
+      <label>Enter URL</label>
+      <input type="url" id="url-input" placeholder="https://example.com">
+    </div>
+
+    <div id="phone-fields" class="hidden">
+      <label>Phone Number</label>
+      <input type="tel" id="phone-input">
+    </div>
+
+    <div id="text-fields" class="hidden">
+      <label>Text</label>
+      <textarea id="text-input"></textarea>
+    </div>
+
+    <div id="email-fields" class="hidden">
+      <label>Email</label>
+      <input type="email" id="email-input">
+      <label>Subject</label>
+      <input type="text" id="subject-input">
+      <label>Message</label>
+      <textarea id="message-input"></textarea>
+    </div>
+
+    <div id="wifi-fields" class="hidden">
+      <label>SSID</label>
+      <input type="text" id="ssid-input">
+      <label>Password</label>
+      <input type="password" id="password-input">
+      <label>Encryption</label>
+      <select id="encryption-input">
+        <option value="WPA">WPA</option>
+        <option value="WEP">WEP</option>
+        <option value="nopass">None</option>
+      </select>
+    </div>
+
+    <div id="whatsapp-fields" class="hidden">
+      <label>Phone</label>
+      <input type="tel" id="whatsapp-phone">
+      <label>Message</label>
+      <textarea id="whatsapp-message"></textarea>
+    </div>
+
+    <label>Color</label>
+    <input type="color" id="color-input" value="#000000">
+
+    <label>
+      <input type="checkbox" id="transparent-bg">
+      Transparent Background
+    </label>
+
+    <button onclick="generateQRCode()">Generate QR Code</button>
+  </div>
+
+</div>
+
+<div id="qr-code"></div>
+
+<button onclick="downloadQRCode()">Download PNG</button>
+
+<!-- QR Library -->
+<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+
+<script>
+let selectedType = 'url';
+
+const typeFields = {
+  url: 'url-fields',
+  phone: 'phone-fields',
+  text: 'text-fields',
+  email: 'email-fields',
+  wifi: 'wifi-fields',
+  whatsapp: 'whatsapp-fields'
+};
+
+function selectType(type) {
+  selectedType = type;
+
+  for (let key in typeFields) {
+    document.getElementById(typeFields[key]).classList.add("hidden");
+  }
+
+  document.getElementById(typeFields[type]).classList.remove("hidden");
+}
+
+function generateQRCode() {
+  let data = "";
+
+  switch (selectedType) {
+
+    case 'url':
+      data = document.getElementById("url-input").value;
+      break;
+
+    case 'phone':
+      data = "tel:" + document.getElementById("phone-input").value;
+      break;
+
+    case 'text':
+      data = document.getElementById("text-input").value;
+      break;
+
+    case 'email':
+      data =
+        "mailto:" +
+        document.getElementById("email-input").value +
+        "?subject=" +
+        document.getElementById("subject-input").value +
+        "&body=" +
+        document.getElementById("message-input").value;
+      break;
+
+    case 'wifi':
+      data =
+        "WIFI:S:" +
+        document.getElementById("ssid-input").value +
+        ";T:" +
+        document.getElementById("encryption-input").value +
+        ";P:" +
+        document.getElementById("password-input").value +
+        ";;";
+      break;
+
+    case 'whatsapp':
+      let phone = document.getElementById("whatsapp-phone").value;
+      let msg = encodeURIComponent(document.getElementById("whatsapp-message").value);
+      data = "https://wa.me/" + phone + "?text=" + msg;
+      break;
+  }
+
+  const color = document.getElementById("color-input").value;
+  const transparent = document.getElementById("transparent-bg").checked;
+
+  const container = document.getElementById("qr-code");
+  container.innerHTML = "";
+
+  new QRCode(container, {
+    text: data,
+    colorDark: color,
+    colorLight: transparent ? "transparent" : "#ffffff",
+    width: 220,
+    height: 220
+  });
+}
+
+function downloadQRCode() {
+  const canvas = document.querySelector("#qr-code canvas");
+  if (!canvas) return;
+
+  const link = document.createElement("a");
+  link.download = "qr-code.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+</script>
+
+</body>
+</html>
